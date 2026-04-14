@@ -1,0 +1,73 @@
+# ==========================================
+# CONFIGURATION PROMETHEUS-STACK (PI 5)
+# Fichier : grafana/values.yaml
+# ==========================================
+
+prometheus:
+  prometheusSpec:
+    # Durée de conservation des données (2 jours pour économiser le disque)
+    retention: 2d
+    
+    # Ressources pour le Pi 5
+    resources:
+      limits:
+        memory: 1Gi
+      requests:
+        memory: 512Mi
+    
+    # Configuration du stockage persistant
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 2Gi
+
+grafana:
+  # Mot de passe par défaut (À changer à la première connexion)
+  adminPassword: "admin"
+  
+  # Exposition de l'interface Grafana
+  service:
+    type: NodePort
+    nodePort: 32100
+    
+  # Ressources pour Grafana
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 256Mi
+
+  # Configuration supplémentaire pour K3s/ARM
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      searchNamespace: ALL
+
+# Désactivation des composants souvent trop lourds ou inutiles sur un petit cluster
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    resources:
+      limits:
+        memory: 256Mi
+      requests:
+        memory: 128Mi
+
+prometheus-node-exporter:
+  resources:
+    limits:
+      memory: 100Mi
+    requests:
+      memory: 50Mi
+
+kube-state-metrics:
+  resources:
+    limits:
+      memory: 256Mi
+    requests:
+      memory: 128Mi
