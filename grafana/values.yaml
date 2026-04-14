@@ -27,7 +27,7 @@ prometheus:
 
 grafana:
   # Mot de passe par défaut (À changer à la première connexion)
-  adminPassword: "admin"
+  adminPassword: "adminos"
   
   # Exposition de l'interface Grafana
   service:
