@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus-stack
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: kube-prometheus-stack
+    repoURL: https://prometheus-community.github.io/helm-charts
+    targetRevision: 56.21.3
+    helm:
+      values: |
+        # Configuration spécifique pour Raspberry Pi
+        prometheus:
+          prometheusSpec:
+            retention: 2d
+            resources:
+              limits:
+                memory: 800Mi
+              requests:
+                memory: 400Mi
+        grafana:
+          adminPassword: "admin" # Change-le après !
+          service:
+            type: NodePort
+            nodePort: 32100
+          resources:
+            limits:
+              memory: 300Mi
+            requests:
+              memory: 150Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
