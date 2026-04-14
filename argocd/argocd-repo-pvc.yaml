@@ -1,50 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    app.kubernetes.io/component: applicationset-controller
-    app.kubernetes.io/name: argocd-applicationset-controller
-    app.kubernetes.io/part-of: argocd
-  name: argocd-applicationset-controller
+  name: argocd-repo-server
   namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-repo-server
+    app.kubernetes.io/part-of: argocd
+    app.kubernetes.io/component: repo-server
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: argocd-applicationset-controller
+      app.kubernetes.io/name: argocd-repo-server
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: argocd-applicationset-controller
+        app.kubernetes.io/name: argocd-repo-server
     spec:
       containers:
-      - name: argocd-applicationset-controller
+      - name: argocd-repo-server
         image: quay.io/argoproj/argocd:v3.3.6
-        command:
-        - /usr/local/bin/argocd-applicationset-controller
-        args:
-        - --argocd-repo-server
-        - argocd-repo-server:8081
-        env:
-        - name: ARGO_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 7000
-          name: webhook
-        - containerPort: 8080
-          name: metrics
+        command: ["/usr/local/bin/argocd-repo-server"]
+        args: ["--redis", "argocd-redis:6379"]
         volumeMounts:
-        - mountPath: /app/config/ssh
-          name: ssh-known-hosts
-        - mountPath: /app/config/tls
-          name: tls-certs
-      serviceAccountName: argocd-applicationset-controller
+        - name: argocd-repo-cache
+          mountPath: /tmp
       volumes:
-      - configMap:
-          name: argocd-ssh-known-hosts-cm
-        name: ssh-known-hosts
-      - configMap:
-          name: argocd-tls-certs-cm
-        name: tls-certs
+      - name: argocd-repo-cache
+        hostPath:
+          path: /mnt/data/argocd-repo-cache
+          type: DirectoryOrCreate
