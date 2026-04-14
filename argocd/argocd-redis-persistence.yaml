@@ -24,14 +24,15 @@ spec:
       labels:
         app.kubernetes.io/name: argocd-redis
     spec:
+      containers:
+      - name: redis
+        image: redis:7.0.11-alpine
+        command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
       volumes:
       - name: redis-data
         hostPath:
           path: /mnt/data/argocd-redis
           type: DirectoryOrCreate
-      containers:
-      - name: redis
-        image: redis:7.0.11-alpine
-        volumeMounts:
-        - name: redis-data
-          mountPath: /data
