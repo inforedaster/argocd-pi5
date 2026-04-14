@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: argocd-repo-server
-        image: quay.io/argoproj/argocd:v3.3.6
+        image: quay.io/argoproj/argocd:v3.3.6 # Version alignée
         command: ["/usr/local/bin/argocd-repo-server"]
         args: ["--redis", "argocd-redis:6379"]
         volumeMounts:
