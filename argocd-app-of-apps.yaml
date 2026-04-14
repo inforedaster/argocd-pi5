@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-self-managed
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/TON_USER/TON_REPO_MISTRALIA.git
+    targetRevision: HEAD
+    path: argocd # Le dossier où se trouvent tes YAMLs
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true    # Supprime ce qui n'est plus dans Git
+      selfHeal: true # Répare si tu modifies un truc manuellement par erreur
