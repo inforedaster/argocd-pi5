@@ -2,14 +2,14 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: webui
+  name: open-webui
 ---
-# 2. Le Stockage (Nouveau PVC dans le namespace webui)
+# 2. Le Stockage
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: open-webui-pvc
-  namespace: webui
+  namespace: open-webui
 spec:
   accessModes:
     - ReadWriteOnce
@@ -23,7 +23,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: open-webui
-  namespace: webui
+  namespace: open-webui
   labels:
     app: open-webui
 spec:
@@ -63,7 +63,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: open-webui-service
-  namespace: webui
+  namespace: open-webui
 spec:
   type: NodePort
   selector:
