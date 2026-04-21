@@ -8,11 +8,13 @@ spec:
   source:
     repoURL: https://github.com/inforedaster/argocd-pi5.git
     targetRevision: HEAD
-    path: open-webui # Il va lire le dossier qu'on vient de créer
+    path: open-webui
   destination:
     server: https://kubernetes.default.svc
-    namespace: default
+    namespace: open-webui
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
