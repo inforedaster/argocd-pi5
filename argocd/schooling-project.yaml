@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: schooling
+  namespace: argocd
+spec:
+  description: School platform infrastructure and applications
+
+  sourceRepos:
+    - https://github.com/inforedaster/argocd-pi5.git
+    - https://cloudnative-pg.github.io/charts
+    - https://charts.bitnami.com/bitnami
+    - https://charts.min.io
+    - https://charts.gitlab.io
+
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: shared
+    - server: https://kubernetes.default.svc
+      namespace: school-dev
+    - server: https://kubernetes.default.svc
+      namespace: school-rec
+    - server: https://kubernetes.default.svc
+      namespace: gitlab-runner
+    - server: https://kubernetes.default.svc
+      namespace: cnpg-system
+
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding

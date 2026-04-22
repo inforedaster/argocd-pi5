@@ -4,7 +4,7 @@ metadata:
   name: school-gitlab-runner
   namespace: argocd
 spec:
-  project: default
+  project: schooling
   source:
     repoURL: https://charts.gitlab.io
     chart: gitlab-runner

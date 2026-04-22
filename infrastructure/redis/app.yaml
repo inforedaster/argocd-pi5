@@ -4,7 +4,7 @@ metadata:
   name: school-redis
   namespace: argocd
 spec:
-  project: default
+  project: schooling
   source:
     repoURL: https://charts.bitnami.com/bitnami
     chart: redis
