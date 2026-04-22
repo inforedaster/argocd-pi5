@@ -26,8 +26,10 @@ prometheus:
               storage: 2Gi
 
 grafana:
-  # Mot de passe par défaut (À changer à la première connexion)
-  adminPassword: "admin"
+  admin:
+    existingSecret: grafana-admin-credentials
+    userKey: admin-user
+    passwordKey: admin-password
   
   # Exposition de l'interface Grafana
   service:
