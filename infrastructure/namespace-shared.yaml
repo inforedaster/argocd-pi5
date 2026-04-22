@@ -2,18 +2,26 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: shared
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: school-dev
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: school-rec
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: gitlab-runner
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
