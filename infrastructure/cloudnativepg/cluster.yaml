@@ -3,6 +3,8 @@ kind: Cluster
 metadata:
   name: school-postgres
   namespace: shared
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   instances: 1
 
