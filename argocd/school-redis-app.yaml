@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://charts.bitnami.com/bitnami
     chart: redis
-    targetRevision: 19.6.4
+    targetRevision: 23.1.1
     helm:
       releaseName: school-redis
       values: |
