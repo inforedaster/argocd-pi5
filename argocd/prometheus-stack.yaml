@@ -24,5 +24,12 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-      - ServerSideApply=true # Indispensable pour la taille des CRD
-      - Replace=true         # Force le remplacement si le patch échoue
+      - ServerSideApply=true
+      - Replace=true
+      - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 3m
