@@ -4,7 +4,6 @@ metadata:
   name: cloudnativepg-operator
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "-1"
 spec:
   project: schooling
   source:
