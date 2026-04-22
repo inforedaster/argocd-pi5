@@ -8,6 +8,7 @@ spec:
 
   sourceRepos:
     - https://github.com/inforedaster/argocd-pi5.git
+    - git@gitlab.com:schoooling/school-platform.git
     - https://cloudnative-pg.github.io/charts
     - https://charts.bitnami.com/bitnami
     - https://charts.min.io
