@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: school-infrastructure
+  namespace: argocd
+spec:
+  project: schooling
+  source:
+    repoURL: https://github.com/inforedaster/argocd-pi5.git
+    targetRevision: HEAD
+    path: infrastructure
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shared
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

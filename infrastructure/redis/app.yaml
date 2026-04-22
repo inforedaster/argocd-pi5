@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: school-redis
+  namespace: argocd
+spec:
+  project: schooling
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: redis
+    targetRevision: 19.6.4
+    helm:
+      releaseName: school-redis
+      values: |
+        architecture: standalone
+
+        auth:
+          enabled: true
+          existingSecret: school-redis-credentials
+          existingSecretPasswordKey: redis-password
+
+        master:
+          persistence:
+            enabled: true
+            storageClass: local-path
+            size: 1Gi
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: shared
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

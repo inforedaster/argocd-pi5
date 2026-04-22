@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: school-gitlab-runner
+  namespace: argocd
+spec:
+  project: schooling
+  source:
+    repoURL: https://charts.gitlab.io
+    chart: gitlab-runner
+    targetRevision: 0.64.0
+    helm:
+      releaseName: school-gitlab-runner
+      values: |
+        gitlabUrl: https://gitlab.com
+
+        rbac:
+          create: true
+
+        runners:
+          secret: school-gitlab-runner-credentials
+          config: |
+            [[runners]]
+              [runners.kubernetes]
+                namespace = "gitlab-runner"
+                image = "ubuntu:22.04"
+                cpu_request = "100m"
+                memory_request = "128Mi"
+
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitlab-runner
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
