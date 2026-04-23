@@ -25,6 +25,7 @@ spec:
               [runners.kubernetes]
                 namespace = "gitlab-runner"
                 image = "ubuntu:22.04"
+                helper_image = "registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:arm64-v16.11.0"
                 cpu_request = "100m"
                 memory_request = "128Mi"
 
