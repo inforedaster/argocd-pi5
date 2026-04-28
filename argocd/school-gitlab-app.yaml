@@ -1,0 +1,208 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: school-gitlab
+  namespace: argocd
+spec:
+  project: schooling
+  source:
+    repoURL: https://charts.gitlab.io
+    chart: gitlab
+    targetRevision: 8.9.0
+    helm:
+      releaseName: gitlab
+      values: |
+        global:
+          edition: ce
+          gitlabVersion: "17.9.0"
+
+          hosts:
+            domain: school.local
+            https: false
+            gitlab:
+              name: gitlab.school.local
+            registry:
+              name: registry.school.local
+
+          ingress:
+            enabled: true
+            class: traefik
+            annotations:
+              kubernetes.io/ingress.class: traefik
+            configureCertmanager: false
+            tls:
+              enabled: false
+
+          nodeSelector:
+            kubernetes.io/hostname: pi-node-03
+
+          psql:
+            host: gitlab-postgres-rw.gitlab.svc.cluster.local
+            port: 5432
+            database: gitlabhq_production
+            username: app
+            password:
+              secret: gitlab-postgres-app
+              key: password
+
+          redis:
+            host: school-redis-master.shared.svc.cluster.local
+            port: 6379
+            auth:
+              enabled: true
+              secret: school-redis-credentials
+              key: redis-password
+
+          minio:
+            enabled: false
+
+          appConfig:
+            object_store:
+              enabled: true
+              proxy_download: true
+              connection:
+                secret: gitlab-minio-connection
+                key: connection
+            artifacts:
+              bucket: gitlab-artifacts
+            lfs:
+              bucket: gitlab-lfs
+            uploads:
+              bucket: gitlab-uploads
+            packages:
+              bucket: gitlab-packages
+            backups:
+              bucket: gitlab-backups
+              tmpBucket: gitlab-backups-tmp
+
+          initialRootPassword:
+            secret: gitlab-initial-root-password
+            key: password
+
+        # ── Disable bundled infrastructure ────────────────────────────
+        postgresql:
+          install: false
+
+        redis:
+          install: false
+
+        nginx-ingress:
+          enabled: false
+
+        certmanager:
+          install: false
+
+        certmanager-issuer:
+          email: admin@school.local
+
+        prometheus:
+          install: false
+
+        minio:
+          enabled: false
+
+        spamcheck:
+          enabled: false
+
+        praefect:
+          enabled: false
+
+        # ── GitLab sub-components ─────────────────────────────────────
+        gitlab:
+          kas:
+            enabled: false
+
+          pages:
+            enabled: false
+
+          webservice:
+            replicaCount: 1
+            puma:
+              workers: 2
+              threads:
+                min: 2
+                max: 4
+            resources:
+              requests:
+                cpu: 300m
+                memory: 1500Mi
+              limits:
+                cpu: 1500m
+                memory: 3Gi
+
+          sidekiq:
+            replicaCount: 1
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                cpu: 700m
+                memory: 1Gi
+
+          gitaly:
+            persistence:
+              enabled: true
+              storageClass: local-path
+              size: 50Gi
+            resources:
+              requests:
+                cpu: 100m
+                memory: 200Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi
+
+          gitlab-shell:
+            replicaCount: 1
+            resources:
+              requests:
+                cpu: 10m
+                memory: 24Mi
+              limits:
+                cpu: 100m
+                memory: 128Mi
+
+          migrations:
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 1Gi
+
+          toolbox:
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+              limits:
+                cpu: 200m
+                memory: 256Mi
+
+        # ── Container Registry ────────────────────────────────────────
+        registry:
+          enabled: true
+          storage:
+            secret: gitlab-registry-storage
+            key: config
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitlab
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
