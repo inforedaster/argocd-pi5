@@ -105,11 +105,11 @@ spec:
           enabled: false
 
         # ── GitLab sub-components ─────────────────────────────────────
+        upgradeCheck:
+          enabled: false
+
         gitlab:
           kas:
-            enabled: false
-
-          upgradeCheck:
             enabled: false
 
           pages:
