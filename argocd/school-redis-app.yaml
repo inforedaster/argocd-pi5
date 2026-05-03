@@ -6,9 +6,9 @@ metadata:
 spec:
   project: schooling
   source:
-    repoURL: https://charts.bitnami.com/bitnami
+    repoURL: oci://registry-1.docker.io/bitnamicharts
     chart: redis
-    targetRevision: 23.1.1
+    targetRevision: 21.2.0
     helm:
       releaseName: school-redis
       values: |

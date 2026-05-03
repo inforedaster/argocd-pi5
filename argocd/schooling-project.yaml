@@ -12,6 +12,7 @@ spec:
     - https://gitlab.com/schoooling/school-platform.git
     - https://cloudnative-pg.github.io/charts
     - https://charts.bitnami.com/bitnami
+    - oci://registry-1.docker.io/bitnamicharts
     - https://charts.min.io
     - https://charts.gitlab.io
 
