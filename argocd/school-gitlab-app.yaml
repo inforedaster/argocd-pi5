@@ -98,9 +98,6 @@ spec:
         prometheus:
           install: false
 
-        minio:
-          enabled: false
-
         spamcheck:
           enabled: false
 
