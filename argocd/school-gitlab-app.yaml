@@ -109,6 +109,9 @@ spec:
           kas:
             enabled: false
 
+          upgradeCheck:
+            enabled: false
+
           pages:
             enabled: false
 
