@@ -8,18 +8,17 @@ spec:
   source:
     repoURL: https://charts.gitlab.io
     chart: gitlab
-    targetRevision: 8.9.0
+    # Chart 7.11.x = GitLab 16.11.x.
+    # GitLab 17.x ARM64 builds jemalloc with lg_page=16 (64KB) for Apple Silicon
+    # compatibility; Pi5 uses 4KB pages → statically linked jemalloc fatally aborts.
+    # GitLab 16.11.x was built with lg_page=12 (4KB) and works on Pi5.
+    targetRevision: 7.11.6
     helm:
       releaseName: gitlab
       values: |
         global:
           edition: ce
-          gitlabVersion: "17.9.0"
-
-          # Pi5 ARM64 with 4KB kernel pages: jemalloc compiled for 16KB/64KB pages
-          # will abort unless opt_abort is disabled at init time.
-          extraEnv:
-            MALLOC_CONF: "abort:false,abort_conf:false"
+          gitlabVersion: "16.11.6"
 
           hosts:
             domain: school.local
