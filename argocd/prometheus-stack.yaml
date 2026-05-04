@@ -18,6 +18,21 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
+  # Grafana rotates its own admin secret on restart; ignore data drift.
+  # Grafana deployment annotations are mutated in-cluster by the Helm chart hooks.
+  ignoreDifferences:
+    - kind: Secret
+      name: prometheus-stack-grafana
+      namespace: monitoring
+      jsonPointers:
+        - /data
+    - kind: Deployment
+      name: prometheus-stack-grafana
+      namespace: monitoring
+      jsonPointers:
+        - /spec/template/metadata/annotations
+        - /spec/template/spec/containers/0/env
+
   syncPolicy:
     automated:
       prune: true

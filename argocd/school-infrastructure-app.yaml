@@ -14,6 +14,19 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: shared
+  # Redis StatefulSet gains defaulted fields (terminationMessage*, imagePullPolicy)
+  # when applied without server-side apply context; volumeClaimTemplates are immutable.
+  ignoreDifferences:
+    - group: apps
+      kind: StatefulSet
+      name: school-redis
+      namespace: shared
+      jsonPointers:
+        - /spec/template/spec/containers/0/terminationMessagePath
+        - /spec/template/spec/containers/0/terminationMessagePolicy
+        - /spec/template/spec/containers/0/imagePullPolicy
+        - /spec/volumeClaimTemplates
+
   syncPolicy:
     automated:
       prune: true

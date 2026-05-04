@@ -18,3 +18,12 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+    # Token expires: update ArgoCD secret repo-3494315017 in argocd namespace
+    # kubectl patch secret repo-3494315017 -n argocd --type='json' \
+    #   -p='[{"op":"replace","path":"/data/password","value":"'$(echo -n "NEW_TOKEN" | base64)'"}]'
+    retry:
+      limit: 10
+      backoff:
+        duration: 60s
+        factor: 2
+        maxDuration: 10m
