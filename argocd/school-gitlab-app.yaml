@@ -38,8 +38,8 @@ spec:
             tls:
               enabled: false
 
-          nodeSelector:
-            kubernetes.io/hostname: pi-node-03
+          # No global nodeSelector — components spread across pi-node-02/03.
+          # Only gitaly is pinned below (its local-path PVC is on pi-node-03).
 
           psql:
             host: gitlab-postgres-rw.gitlab.svc.cluster.local
@@ -134,11 +134,11 @@ spec:
                 max: 4
             resources:
               requests:
-                cpu: 300m
-                memory: 1500Mi
+                cpu: 200m
+                memory: 900Mi
               limits:
                 cpu: 1500m
-                memory: 3Gi
+                memory: 2Gi
 
           sidekiq:
             replicaCount: 1
@@ -151,6 +151,9 @@ spec:
                 memory: 1Gi
 
           gitaly:
+            # PVC is on pi-node-03 (local-path) — must stay on that node.
+            nodeSelector:
+              kubernetes.io/hostname: pi-node-03
             persistence:
               enabled: true
               storageClass: local-path
