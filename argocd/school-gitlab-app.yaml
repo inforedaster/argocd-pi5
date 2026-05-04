@@ -210,13 +210,22 @@ spec:
     namespace: gitlab
 
   # HPAs report missing metrics (no metrics-server on Pi5 cluster).
-  # ConfigMaps with hash-based names mutate on every GitLab restart.
-  # Secrets for tokens/keys are managed by GitLab operator and mutate in-cluster.
+  # StatefulSets gain k8s-defaulted fields on first apply (terminationMessage*,
+  # imagePullPolicy, volumeClaimTemplates are immutable after creation).
+  # ConfigMaps mutate on GitLab restart; runner token rotates in-cluster.
   ignoreDifferences:
     - group: autoscaling
       kind: HorizontalPodAutoscaler
       jsonPointers:
         - /spec/metrics
+    - group: apps
+      kind: StatefulSet
+      namespace: gitlab
+      jsonPointers:
+        - /spec/template/spec/containers/0/terminationMessagePath
+        - /spec/template/spec/containers/0/terminationMessagePolicy
+        - /spec/template/spec/containers/0/imagePullPolicy
+        - /spec/volumeClaimTemplates
     - kind: ConfigMap
       namespace: gitlab
       jsonPointers:
