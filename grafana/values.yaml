@@ -42,6 +42,10 @@ grafana:
     storageClassName: local-path
     size: 5Gi
 
+  service:
+    type: NodePort
+    nodePort: 31000
+
   ingress:
     enabled: true
     ingressClassName: traefik
