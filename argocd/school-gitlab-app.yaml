@@ -26,6 +26,10 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      # local-path PVC uses WaitForFirstConsumer — stays Pending until pod schedules.
+      # SkipDryRunOnMissingResource lets ArgoCD apply all wave-0 resources together
+      # so the Deployment creates the pod that triggers PVC binding.
+      - SkipDryRunOnMissingResource=true
     retry:
       limit: 5
       backoff:
