@@ -125,6 +125,15 @@ nodeExporter:
   enabled: true
 
 prometheus-node-exporter:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                  - pi-node-04
   resources:
     requests:
       cpu: 20m
