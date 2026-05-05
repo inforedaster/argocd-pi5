@@ -3,12 +3,14 @@ kind: Application
 metadata:
   name: prometheus-stack
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: default
   sources:
     - repoURL: https://prometheus-community.github.io/helm-charts
       chart: kube-prometheus-stack
-      targetRevision: 56.21.3
+      targetRevision: "70.4.2"
       helm:
         valueFiles:
           - $values/grafana/values.yaml
@@ -18,11 +20,13 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
-  # Grafana rotates its own admin secret on restart; ignore data drift.
-  # Grafana deployment annotations are mutated in-cluster by the Helm chart hooks.
+
+  # Grafana admin secret and Deployment annotations mutate in-cluster.
+  # StatefulSet volumeClaimTemplates are immutable after creation.
+  # Admission webhook failurePolicy is defaulted by the API server.
   ignoreDifferences:
     - kind: Secret
-      name: prometheus-stack-grafana
+      name: grafana-admin-credentials
       namespace: monitoring
       jsonPointers:
         - /data
@@ -32,6 +36,18 @@ spec:
       jsonPointers:
         - /spec/template/metadata/annotations
         - /spec/template/spec/containers/0/env
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /spec/volumeClaimTemplates
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+      jsonPointers:
+        - /webhooks/0/failurePolicy
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      jsonPointers:
+        - /webhooks/0/failurePolicy
 
   syncPolicy:
     automated:
@@ -41,6 +57,7 @@ spec:
       - CreateNamespace=true
       - ServerSideApply=true
       - ApplyOutOfSyncOnly=true
+      - RespectIgnoreDifferences=true
     retry:
       limit: 3
       backoff:

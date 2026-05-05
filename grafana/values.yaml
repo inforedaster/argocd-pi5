@@ -1,21 +1,20 @@
 # ==========================================
 # CONFIGURATION PROMETHEUS-STACK (PI 5)
 # Fichier : grafana/values.yaml
+# NOTE: pi-node-04 est NotReady — composants pinnés sur pi-node-02
 # ==========================================
 
+fullnameOverride: prometheus-stack
+
+# ── Prometheus ────────────────────────────────────────────────────────────
 prometheus:
   prometheusSpec:
-    # Durée de conservation des données (2 jours pour économiser le disque)
-    retention: 2d
-    
-    # Ressources pour le Pi 5
-    resources:
-      limits:
-        memory: 1Gi
-      requests:
-        memory: 512Mi
-    
-    # Configuration du stockage persistant
+    retention: 15d
+    retentionSize: "20GB"
+
+    nodeSelector:
+      kubernetes.io/hostname: pi-node-02
+
     storageSpec:
       volumeClaimTemplate:
         spec:
@@ -23,53 +22,139 @@ prometheus:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 2Gi
+              storage: 2Gi    # Existing PVC — cannot increase without manual resize
 
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+
+    podMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+
+# ── Grafana ───────────────────────────────────────────────────────────────
 grafana:
   admin:
     existingSecret: grafana-admin-credentials
     userKey: admin-user
     passwordKey: admin-password
-  
-  # Exposition de l'interface Grafana
-  service:
-    type: NodePort
-    nodePort: 32100
-    
-  # Ressources pour Grafana
-  resources:
-    limits:
-      memory: 512Mi
-    requests:
-      memory: 256Mi
 
-  # Configuration supplémentaire pour K3s/ARM
+  nodeSelector:
+    kubernetes.io/hostname: pi-node-02
+
+  persistence:
+    enabled: true
+    storageClassName: local-path
+    size: 5Gi
+
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: web
+    hosts:
+      - grafana.school.local
+
+  grafana.ini:
+    server:
+      root_url: http://grafana.school.local
+    auth.anonymous:
+      enabled: false
+
   sidecar:
     dashboards:
       enabled: true
       label: grafana_dashboard
       searchNamespace: ALL
 
-# Désactivation des composants souvent trop lourds ou inutiles sur un petit cluster
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  # Pre-configure Loki datasource for when loki-stack is deployed
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki-stack:3100
+      access: proxy
+      isDefault: false
+
+# ── Alertmanager ──────────────────────────────────────────────────────────
 alertmanager:
   enabled: true
   alertmanagerSpec:
+    nodeSelector:
+      kubernetes.io/hostname: pi-node-02
+
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          resources:
+            requests:
+              storage: 2Gi
+
     resources:
-      limits:
-        memory: 256Mi
       requests:
+        cpu: 50m
         memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      group_by: ['alertname', 'namespace']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: 'null'
+    receivers:
+      - name: 'null'
+
+# ── Prometheus Operator ───────────────────────────────────────────────────
+prometheusOperator:
+  nodeSelector:
+    kubernetes.io/hostname: pi-node-02
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# ── Node Exporter ─────────────────────────────────────────────────────────
+nodeExporter:
+  enabled: true
 
 prometheus-node-exporter:
   resources:
-    limits:
-      memory: 100Mi
     requests:
+      cpu: 20m
       memory: 50Mi
+    limits:
+      cpu: 100m
+      memory: 100Mi
+
+# ── Kube State Metrics ────────────────────────────────────────────────────
+kubeStateMetrics:
+  enabled: true
 
 kube-state-metrics:
   resources:
-    limits:
-      memory: 256Mi
     requests:
+      cpu: 50m
       memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
