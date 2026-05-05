@@ -1,19 +1,14 @@
 # ==========================================
 # CONFIGURATION PROMETHEUS-STACK (PI 5)
 # Fichier : grafana/values.yaml
-# NOTE: pi-node-04 est NotReady — composants pinnés sur pi-node-02
+# NOTE: pi-node-04 est NotReady. No nodeSelector — scheduler places freely.
 # ==========================================
-
-fullnameOverride: prometheus-stack
 
 # ── Prometheus ────────────────────────────────────────────────────────────
 prometheus:
   prometheusSpec:
     retention: 15d
     retentionSize: "20GB"
-
-    nodeSelector:
-      kubernetes.io/hostname: pi-node-02
 
     storageSpec:
       volumeClaimTemplate:
@@ -22,7 +17,7 @@ prometheus:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 2Gi    # Existing PVC — cannot increase without manual resize
+              storage: 5Gi
 
     resources:
       requests:
@@ -41,9 +36,6 @@ grafana:
     existingSecret: grafana-admin-credentials
     userKey: admin-user
     passwordKey: admin-password
-
-  nodeSelector:
-    kubernetes.io/hostname: pi-node-02
 
   persistence:
     enabled: true
@@ -90,9 +82,6 @@ grafana:
 alertmanager:
   enabled: true
   alertmanagerSpec:
-    nodeSelector:
-      kubernetes.io/hostname: pi-node-02
-
     storage:
       volumeClaimTemplate:
         spec:
@@ -123,8 +112,6 @@ alertmanager:
 
 # ── Prometheus Operator ───────────────────────────────────────────────────
 prometheusOperator:
-  nodeSelector:
-    kubernetes.io/hostname: pi-node-02
   resources:
     requests:
       cpu: 100m
