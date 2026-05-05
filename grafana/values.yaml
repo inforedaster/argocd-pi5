@@ -74,8 +74,12 @@ grafana:
       cpu: 500m
       memory: 512Mi
 
-  # Pre-configure Loki datasource for when loki-stack is deployed
   additionalDataSources:
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-stack-kube-prom-prometheus:9090
+      access: proxy
+      isDefault: true
     - name: Loki
       type: loki
       url: http://loki-stack:3100
