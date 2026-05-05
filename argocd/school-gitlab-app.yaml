@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/inforedaster/argocd-pi5.git
     targetRevision: HEAD
-    path: infrastructure/gitlab-omnibus
+    path: gitlab-omnibus
     directory:
       recurse: false
   destination:
