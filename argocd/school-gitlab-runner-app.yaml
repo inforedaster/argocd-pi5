@@ -13,6 +13,7 @@ spec:
       releaseName: school-gitlab-runner
       values: |
         gitlabUrl: https://gitlab.com
+        concurrent: 3
 
         rbac:
           create: true
@@ -26,8 +27,10 @@ spec:
                 namespace = "gitlab-runner"
                 image = "ubuntu:22.04"
                 helper_image = "registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:arm64-v16.11.0"
-                cpu_request = "100m"
-                memory_request = "128Mi"
+                cpu_request = "200m"
+                cpu_limit = "1500m"
+                memory_request = "512Mi"
+                memory_limit = "2Gi"
 
         resources:
           requests:
